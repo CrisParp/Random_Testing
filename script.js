@@ -8,7 +8,8 @@ const gRange = document.getElementById("gRange");
 const bRange = document.getElementById("bRange");
 const sidebar = document.getElementById("sidebar");
 const menuIcon = document.getElementById("menuIcon");
-const customModeBtn = document.getElementById("customModeBtn");
+const modeToggleBtn = document.getElementById("modeToggleBtn");
+const overlay = document.getElementById("overlay");
 
 let inCustomMode = false;
 
@@ -32,16 +33,24 @@ modeSwitch.addEventListener("change", () => {
   toggleMode();
 });
 
-customModeBtn.addEventListener("click", () => {
-  inCustomMode = true;
-  modeSwitch.checked = true;
+modeToggleBtn.addEventListener("click", () => {
+  inCustomMode = !inCustomMode;
+  modeSwitch.checked = inCustomMode;
   toggleMode();
-  sidebar.classList.remove("open");
+  closeMenu();
 });
 
 menuIcon.addEventListener("click", () => {
   sidebar.classList.toggle("open");
+  overlay.style.display = sidebar.classList.contains("open") ? "block" : "none";
 });
+
+overlay.addEventListener("click", closeMenu);
+
+function closeMenu() {
+  sidebar.classList.remove("open");
+  overlay.style.display = "none";
+}
 
 function toggleMode() {
   if (inCustomMode) {
@@ -49,11 +58,13 @@ function toggleMode() {
     colorText.style.display = "none";
     customControls.style.display = "flex";
     document.body.style.backgroundColor = "#000";
-    updateFromRGB(); // Initial black
+    updateFromRGB();
+    modeToggleBtn.textContent = "Random Color Mode";
   } else {
     btn.style.display = "inline-block";
     colorText.style.display = "inline-block";
     customControls.style.display = "none";
+    modeToggleBtn.textContent = "Custom Color Mode";
   }
 }
 
