@@ -1,47 +1,117 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Color Flipper Website</title>
-  <link rel="stylesheet" href="style.css"/>
-</head>
-<body>
-  <div class="menu-icon" id="menuIcon">&#9776;</div>
+\  <input type="range" id="green" class="slider" min="0" max="255" />
+  <input type="range" id="blue" class="slider" min="0" max="255" />
 
-  <!-- New: Overlay -->
-  <div class="overlay" id="overlay"></div>
-
-  <!-- Sidebar Menu -->
-  <div class="sidebar" id="sidebar">
-    <h2 class="menu-title">MENU</h2>
-    <ul>
-      <li id="modeToggleBtn">Custom Color Mode</li>
-    </ul>
+  <div class="hex-lock" id="hexLock">
+    <!-- Hex Digit Scrollers will be inserted by JS -->
   </div>
+</div>
 
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <h1>Color Flipper</h1>
-    <p>Current Color: <span id="color">#FFFFFF</span></p>
-    <button id="btn">Change Color</button>
+<script>
+  const overlay = document.getElementById('overlay');
+  const sidebar = document.getElementById('sidebar');
+  const menuToggle = document.getElementById('menuToggle');
 
-    <label class="switch-container">
-      <input type="checkbox" id="modeSwitch" />
-      <span class="switch-slider"></span>
-      <span class="label-text">Choose your own color</span>
-    </label>
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.add('open');
+    overlay.classList.add('show');
+  });
 
-    <div class="custom-controls" id="customControls">
-      <input type="text" id="hexInput" placeholder="#000000" maxlength="7" />
-      <div class="slider-group">
-        <label>R: <input type="range" id="rRange" min="0" max="255" /></label>
-        <label>G: <input type="range" id="gRange" min="0" max="255" /></label>
-        <label>B: <input type="range" id="bRange" min="0" max="255" /></label>
-      </div>
-    </div>
-  </div>
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
 
-  <script src="script.js"></script>
+  function switchMode(mode) {
+    document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById(mode).classList.add('active');
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  }
+
+  // Custom Color Mode Updates
+  const customHex = document.getElementById('customHex');
+  const customR = document.getElementById('customR');
+  const customG = document.getElementById('customG');
+  const customB = document.getElementById('customB');
+
+  function updateCustomBackground() {
+    let hex = customHex.value;
+    if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+      document.body.style.backgroundColor = hex;
+    }
+
+    let r = parseInt(customR.value || '0');
+    let g = parseInt(customG.value || '0');
+    let b = parseInt(customB.value || '0');
+
+    if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+      let rgbHex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+      document.body.style.backgroundColor = rgbHex;
+    }
+  }
+
+  customHex.addEventListener('input', updateCustomBackground);
+  [customR, customG, customB].forEach(input => input.addEventListener('input', updateCustomBackground));
+
+  // Color Flow Mode
+  const redSlider = document.getElementById('red');
+  const greenSlider = document.getElementById('green');
+  const blueSlider = document.getElementById('blue');
+
+  function updateFlowBackground() {
+    const r = parseInt(redSlider.value);
+    const g = parseInt(greenSlider.value);
+    const b = parseInt(blueSlider.value);
+    const color = `rgb(${r}, ${g}, ${b})`;
+    document.body.style.backgroundColor = color;
+  }
+
+  [redSlider, greenSlider, blueSlider].forEach(slider => {
+    slider.addEventListener('input', updateFlowBackground);
+  });
+
+  // Hex Scroll Lock
+  const hexLock = document.getElementById('hexLock');
+  const hexDigits = ['1','2','3','4','5','6','A','B','C','D','E','F'];
+
+  function buildHexScroll() {
+    hexLock.innerHTML = ''; // Clear
+
+    for (let i = 0; i < 6; i++) {
+      const scrollBox = document.createElement('div');
+      scrollBox.className = 'hex-digit';
+      scrollBox.dataset.index = i;
+
+      hexDigits.forEach(val => {
+        const div = document.createElement('div');
+        div.className = 'hex-value';
+        div.innerText = val;
+        scrollBox.appendChild(div);
+      });
+
+      scrollBox.addEventListener('scroll', () => {
+        requestAnimationFrame(updateHexLockColor);
+      });
+
+      hexLock.appendChild(scrollBox);
+    }
+  }
+
+  function updateHexLockColor() {
+    const scrolls = Array.from(document.querySelectorAll('.hex-digit'));
+    let hexCode = '#';
+
+    scrolls.forEach(scroller => {
+      const val = Math.round(scroller.scrollTop / 36); // ~height of .hex-value
+      hexCode += hexDigits[val] || '0';
+    });
+
+    if (hexCode.length === 7) {
+      document.body.style.backgroundColor = hexCode;
+    }
+  }
+
+  buildHexScroll();
+</script>
 </body>
 </html>
