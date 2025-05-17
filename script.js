@@ -1,10 +1,10 @@
 const btn = document.getElementById("btn");
 const colorText = document.getElementById("color");
 
-btn.addEventListener("click", function () {
-  const randomColor = getRandomColor();
-  document.body.style.backgroundColor = randomColor;
-  colorText.textContent = randomColor;
+btn.addEventListener("click", () => {
+  const color = getRandomColor();
+  document.body.style.backgroundColor = color;
+  colorText.textContent = color;
 });
 
 function getRandomColor() {
